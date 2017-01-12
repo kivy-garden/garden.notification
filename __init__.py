@@ -10,7 +10,6 @@ Notification features:
     -returns Thread
 
 TODO:
-- linux & osx screen resolution getter
 - linux & osx window hide & grab focus back implementation
   (needed for hiding the window another python interpreter creates)
 - position relatively to the taskbar (or at least not on top of it)

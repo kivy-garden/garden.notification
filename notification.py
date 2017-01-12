@@ -1,17 +1,33 @@
 import sys
-import ctypes
-import win32gui
 import traceback
-from win32con import (
-    SW_HIDE, SW_SHOW,
-    GWL_EXSTYLE, WS_EX_TOOLWINDOW
-)
 from ast import literal_eval
+from kivy.utils import platform
+from subprocess import check_output
 
-# get resolution for windows only,
 # waiting for https://github.com/kivy/plyer/pull/201
-u32 = ctypes.windll.user32
-RESOLUTION = (u32.GetSystemMetrics(0), u32.GetSystemMetrics(1))
+if platform == 'win':
+    import ctypes
+    import win32gui
+    from win32con import (
+        SW_HIDE, SW_SHOW,
+        GWL_EXSTYLE, WS_EX_TOOLWINDOW
+    )
+    u32 = ctypes.windll.user32
+    RESOLUTION = (u32.GetSystemMetrics(0), u32.GetSystemMetrics(1))
+elif platform == 'linux':
+    o = check_output('xrandr')
+    start = o.find('current') + 7
+    end = o.find(', maximum')
+    RESOLUTION = [int(n) for n in o[start:end].split('x')]
+elif platform == 'osx':
+    o = check_output(['system_profiler', 'SPDisplaysDataType'])
+    start = o.find('Resolution: ')
+    end = o.find('\n', start=start)
+    o = o[start:end].strip().split(' ')
+    RESOLUTION = (int(o[1]), int(o[3]))
+else:
+    raise NotImplementedError("Not a desktop platform!")
+
 
 KWARGS = literal_eval(sys.argv[1])
 WIDTH = KWARGS['width']
@@ -40,7 +56,6 @@ Config.set(
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.logger import Logger
-from kivy.utils import platform
 from kivy.properties import StringProperty, ListProperty
 
 
