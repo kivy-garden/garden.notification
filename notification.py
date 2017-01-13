@@ -77,12 +77,8 @@ class Notification(App):
     def _hide_window(self, *args):
         if platform == 'win':
             self._hide_w32_window()
-        elif platform == 'linux':
-            raise NotImplementedError('linux')
-        elif platform == 'osx':
-            raise NotImplementedError('osx')
-        else:
-            return
+        elif platform in ('linux', 'osx'):
+            print('_hide_window not implemented for {}'.format(platform))
 
     def _hide_w32_window(self):
         try:

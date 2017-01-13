@@ -37,7 +37,7 @@ class Notification(object):
             parent_title = app.get_application_name()
 
         self.path = dirname(abspath(__file__))
-        t = threading.Thread(target=self._call, args=(str({
+        t = threading.Thread(target=self._call, args=str({
             'title': title,
             'message': message,
             'icon': icon,
@@ -51,10 +51,14 @@ class Notification(object):
             'color': color,
             'background_color': background_color,
             'parent_title': parent_title
-        })))
+        }))
 
         t.start()
         return t
 
     def _call(self, *args):
-        scall([sys.executable, join(self.path, 'notification.py'), args])
+        scall([
+            sys.executable,
+            join(self.path, 'notification.py'),
+            ''.join(args)  # need for 2.7.9, converts tuple
+        ])
