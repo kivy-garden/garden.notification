@@ -3,6 +3,7 @@ import traceback
 from ast import literal_eval
 from kivy.utils import platform
 from subprocess import check_output
+from os.path import dirname, abspath, join
 
 # waiting for https://github.com/kivy/plyer/pull/201
 if platform == 'win':
@@ -55,6 +56,7 @@ Config.set(
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.lang import Builder
 from kivy.logger import Logger
 from kivy.properties import StringProperty, ListProperty
 
@@ -73,6 +75,14 @@ class Notification(App):
         Clock.schedule_once(self._hide_window, 0)
         if KWARGS['timeout_close']:
             Clock.schedule_once(self.stop, KWARGS['timeout'])
+        if KWARGS['kv']:
+            path = dirname(abspath(__file__))
+            kv = Builder.load_file(join(path, 'notification.kv'))
+            kv.ids.container.clear_widgets()
+            kv.ids.container.add_widget(
+                Builder.load_string(KWARGS['kv'])
+            )
+            return kv
 
     def _hide_window(self, *args):
         if platform == 'win':
