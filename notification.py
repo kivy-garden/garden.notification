@@ -1,3 +1,4 @@
+import os
 import sys
 import traceback
 from ast import literal_eval
@@ -62,7 +63,8 @@ from kivy.properties import StringProperty, ListProperty
 
 
 class Notification(App):
-    title = StringProperty(KWARGS['title'])
+    title = StringProperty(KWARGS['title'].replace(' ', '') + str(os.getpid()))
+    notif_title = StringProperty(KWARGS['title'])
     message = StringProperty(KWARGS['message'])
     notif_icon = StringProperty(KWARGS['icon'])
     background_color = ListProperty(KWARGS['background_color'])
@@ -88,7 +90,7 @@ class Notification(App):
         if platform == 'win':
             self._hide_w32_window()
         elif platform in ('linux', 'osx'):
-            print('_hide_window not implemented for {}'.format(platform))
+            self._hide_x11_window()
 
     def _hide_w32_window(self):
         try:
@@ -103,6 +105,22 @@ class Notification(App):
             win32gui.ShowWindow(w32win, SW_SHOW)
             self._return_focus_w32()
         except Exception:
+            tb = traceback.format_exc()
+            Logger.error('Notification_{}: {}'.format(self.title, tb))
+
+    def _hide_x11_window(self):
+        try:
+            # Ubuntu's Unity for some reason ignores this if there are
+            # multiple windows stacked to a single icon on taskbar.
+            # Unity probably calls the same thing to stack the running
+            # programs to a single icon, which makes this command worthless.
+            x11_command = [
+                'xprop', '-name', '{}'.format(self.title), '-f',
+                '_NET_WM_STATE', '32a', '-set', '_NET_WM_STATE',
+                '_NET_WM_STATE_SKIP_TASKBAR'
+            ]
+            check_output(x11_command)
+        except Exception as e:
             tb = traceback.format_exc()
             Logger.error('Notification_{}: {}'.format(self.title, tb))
 
