@@ -38,9 +38,10 @@ Features:
 - kv language input
 
 TODO:
-- linux & osx window hide implementation
+- Ubuntu's Unity & OSX window hide implementation
   (needed for hiding the window another python interpreter creates)
 - grab window focus back - each notification steals focus from the main window
+  (linux & OSX)
 - position relatively to the taskbar (or at least not on top of it)
 - forbid notification to print Kivy initialisation logs to output
   unless asked for it
@@ -88,6 +89,11 @@ class Notification(object):
 
         # subprocess callback after the App dies
         def popen_back(callback, on_stop, args):
+            # str(dict) is used for passing arguments to the child notification
+            # it might trigger an issue on some OS if a length of X characters
+            # is exceeded in the called console string, e.g. too long path
+            # to the interpreter executable, notification file, etc.
+            # https://support.microsoft.com/en-us/help/830473
             p = Popen([
                 sys.executable,
                 join(self.path, 'notification.py'),

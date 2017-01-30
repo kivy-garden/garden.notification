@@ -23,9 +23,10 @@ For more such properties, read the code.
 
 ## TODO:
 
-- linux & osx window hide implementation
+- Ubuntu's Unity & OSX window hide implementation
   (needed for hiding the window another python interpreter creates)
 - grab window focus back - each notification steals focus from the main window
+  (linux & OSX)
 - position relatively to the taskbar (or at least not on top of it)
 - forbid notification to print Kivy initialisation logs to output
   unless asked for it

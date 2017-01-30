@@ -126,8 +126,7 @@ class Notification(App):
 
     def _return_focus_w32(self):
         w32win = win32gui.FindWindow(None, KWARGS['parent_title'])
-        # win32gui.SetFocus(w32win)
-        # permission denied for some reason ???
+        win32gui.SetForegroundWindow(w32win)
 
 
 if __name__ == '__main__':
