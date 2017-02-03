@@ -47,6 +47,7 @@ TODO:
   unless asked for it
 '''
 
+import os
 import sys
 import threading
 from subprocess import Popen
@@ -94,6 +95,7 @@ class Notification(object):
             # is exceeded in the called console string, e.g. too long path
             # to the interpreter executable, notification file, etc.
             # https://support.microsoft.com/en-us/help/830473
+            os.environ['KIVY_NO_FILELOG'] = '1'
             p = Popen([
                 sys.executable,
                 join(self.path, 'notification.py'),

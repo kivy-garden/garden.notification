@@ -106,7 +106,10 @@ class Notification(App):
             self._return_focus_w32()
         except Exception:
             tb = traceback.format_exc()
-            Logger.error('Notification_{}: {}'.format(self.title, tb))
+            Logger.error(
+                'Notification: An error occured in {}\n'
+                '{}'.format(self.title, tb)
+            )
 
     def _hide_x11_window(self):
         try:
@@ -122,7 +125,10 @@ class Notification(App):
             check_output(x11_command)
         except Exception as e:
             tb = traceback.format_exc()
-            Logger.error('Notification_{}: {}'.format(self.title, tb))
+            Logger.error(
+                'Notification: An error occured in {}\n'
+                '{}'.format(self.title, tb)
+            )
 
     def _return_focus_w32(self):
         w32win = win32gui.FindWindow(None, KWARGS['parent_title'])
