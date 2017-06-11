@@ -5,8 +5,9 @@ from ast import literal_eval
 from kivy.utils import platform
 from subprocess import check_output
 from os.path import dirname, abspath, join
+from kivy.garden.notification import utils
 
-# waiting for https://github.com/kivy/plyer/pull/201
+# platform dependent imports
 if platform == 'win':
     import ctypes
     import win32gui
@@ -14,46 +15,66 @@ if platform == 'win':
         SW_HIDE, SW_SHOW,
         GWL_EXSTYLE, WS_EX_TOOLWINDOW
     )
-    u32 = ctypes.windll.user32
-    RESOLUTION = (u32.GetSystemMetrics(0), u32.GetSystemMetrics(1))
-elif platform == 'linux':
-    o = check_output('xrandr')
-    start = o.find('current') + 7
-    end = o.find(', maximum')
-    RESOLUTION = [int(n) for n in o[start:end].split('x')]
-elif platform == 'osx':
-    o = check_output(['system_profiler', 'SPDisplaysDataType'])
-    start = o.find('Resolution: ')
-    end = o.find('\n', start=start)
-    o = o[start:end].strip().split(' ')
-    RESOLUTION = (int(o[1]), int(o[3]))
-else:
-    raise NotImplementedError("Not a desktop platform!")
 
+# get platform dependent values
+RESOLUTION = utils.sys_resolution()
+_TB = utils.taskbar()
 
+# get width or height only for appropriate sides
+TASKBAR = {
+    'width': _TB['width'] if _TB['pos'] in ('right', 'left') else 0,
+    'height': _TB['height'] if _TB['pos'] in ('bottom', 'top') else 0,
+    'pos': _TB['pos']
+}
+
+# convert dict passed as a str arg back
 KWARGS = literal_eval(sys.argv[1])
+
+# fetch values from Notification.open kwargs
 WIDTH = KWARGS['width']
 HEIGHT = KWARGS['height']
-OFFSET = (
-    KWARGS['offset_x'],
-    KWARGS['offset_y']
-)
+OFFSET = {
+    'x': KWARGS['offset_x'],
+    'y': KWARGS['offset_y']
+}
 
 # set window from Notification.open arguments
 from kivy.config import Config
 Config.set('graphics', 'resizable', 0)
 Config.set('graphics', 'borderless', 1)
 Config.set('graphics', 'position', 'custom')
+
 Config.set('graphics', 'width', WIDTH)
 Config.set('graphics', 'height', HEIGHT)
-Config.set(
-    'graphics', 'left',
-    RESOLUTION[0] - WIDTH - OFFSET[0]
-)
-Config.set(
-    'graphics', 'top',
-    RESOLUTION[1] - HEIGHT - OFFSET[1]
-)
+
+# position the notification window according to taskbar
+if TASKBAR['pos'] == 'top':
+    Config.set(
+        'graphics', 'left',
+        RESOLUTION['x'] - WIDTH - OFFSET['x'] - TASKBAR['width']
+    )
+    Config.set(
+        'graphics', 'top',
+        TASKBAR['height'] + OFFSET['y']
+    )
+elif TASKBAR['pos'] == 'left':
+    Config.set(
+        'graphics', 'left',
+        TASKBAR['width'] + OFFSET['x']
+    )
+    Config.set(
+        'graphics', 'top',
+        RESOLUTION['y'] - HEIGHT - OFFSET['y'] - TASKBAR['height']
+    )
+else:
+    Config.set(
+        'graphics', 'left',
+        RESOLUTION['x'] - WIDTH - OFFSET['x'] - TASKBAR['width']
+    )
+    Config.set(
+        'graphics', 'top',
+        RESOLUTION['y'] - HEIGHT - OFFSET['y'] - TASKBAR['height']
+    )
 
 from kivy.app import App
 from kivy.clock import Clock

@@ -1,5 +1,5 @@
 '''
-# Copyright (c) 2013 Peter Badida (KeyWeeUsr)
+# Copyright (c) 2017 Peter Badida (KeyWeeUsr)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,15 +36,16 @@ Features:
 - stacking multiple notifs on top of each other
 - markup turned on in title and message by default
 - kv language input
+- positioning and stacking relatively to the taskbar (Windows)
 
 TODO:
 - Ubuntu's Unity & OSX window hide implementation
   (needed for hiding the window another python interpreter creates)
 - grab window focus back - each notification steals focus from the main window
   (linux & OSX)
-- position relatively to the taskbar (or at least not on top of it)
 - forbid notification to print Kivy initialisation logs to output
   unless asked for it
+- positioning and stacking relatively to the taskbar (linux & OSX)
 '''
 
 import os
@@ -53,16 +54,18 @@ import threading
 from subprocess import Popen
 from os.path import dirname, abspath, join
 from kivy.app import App
+from kivy.garden.notification import utils
 
 
 class Notification(object):
     def open(self, title='Title', message='Message', icon=None,
-             width=300, height=100, offset_x=10, offset_y=40,
-             timeout=15, timeout_close=True, color=None,
-             line_color=None, background_color=None, parent_title=None,
-             stack=True, stack_offset_y=10, on_stop=None, kv=None):
+             width=300, height=100, offset_x=10, offset_y=10,
+             timeout=15, timeout_close=True, color=None, line_color=None,
+             background_color=None, parent_title=None, stack=True,
+             stack_offset_x=10, stack_offset_y=10, on_stop=None, kv=None):
 
         app = App.get_running_app()
+        taskbar = utils.taskbar()['pos']
 
         # set default colors
         if not color:
@@ -77,8 +80,12 @@ class Notification(object):
             app._gardennotification_count = 1
         elif stack and hasattr(app, '_gardennotification_count'):
             inc = app._gardennotification_count
-            app._gardennotification_count += 1
-            offset_y += (height + stack_offset_y) * inc
+            if taskbar in ('top', 'bottom'):
+                app._gardennotification_count += 1
+                offset_y += (height + stack_offset_y) * inc
+            else:
+                app._gardennotification_count += 1
+                offset_x += (width + stack_offset_x) * inc
         else:
             app._gardennotification_count = 0
 

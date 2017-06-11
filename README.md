@@ -20,6 +20,7 @@ For more such properties, read the code.
 - stacking multiple notifs on top of each other
 - markup turned on in title and message by default
 - kv language input
+- positioning and stacking relatively to the taskbar (Windows)
 
 ## TODO:
 
@@ -27,9 +28,9 @@ For more such properties, read the code.
   (needed for hiding the window another python interpreter creates)
 - grab window focus back - each notification steals focus from the main window
   (linux & OSX)
-- position relatively to the taskbar (or at least not on top of it)
 - forbid notification to print Kivy initialisation logs to output
   unless asked for it
+- positioning and stacking relatively to the taskbar (linux & OSX)
 
 ## Example:
 
@@ -75,3 +76,11 @@ class KivyNotification(App):
 if __name__ == '__main__':
     KivyNotification().run()
 ```
+
+## Taskbar awareness
+
+The widget is aware of the system taskbar's position and size, therefore it
+can position itself correctly and stack new notifications in the correct
+direction from the taskbar.
+
+<img src="https://raw.githubusercontent.com/kivy-garden/garden.notification/master/screenshot2.png"></img>
