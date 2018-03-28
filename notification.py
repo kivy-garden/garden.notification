@@ -110,7 +110,7 @@ class Notification(App):
     def _hide_window(self, *args):
         if platform == 'win':
             self._hide_w32_window()
-        elif platform in ('linux', 'osx'):
+        elif platform in ('linux', 'macosx'):
             self._hide_x11_window()
 
     def _hide_w32_window(self):
