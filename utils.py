@@ -28,11 +28,11 @@ def sys_resolution():
             'x': res[0],
             'y': res[1]
         }
-    elif platform == 'osx':
+    elif platform == 'macosx':
         o = check_output(['system_profiler', 'SPDisplaysDataType'])
-        start = o.find('Resolution: ')
-        end = o.find('\n', start=start)
-        o = o[start:end].strip().split(' ')
+        start = o.find(b'Resolution: ')
+        end = o.find(b'\n', start)
+        o = o[start:end].strip().split(b' ')
         RESOLUTION = {
             'x': int(o[1]),
             'y': int(o[3])
