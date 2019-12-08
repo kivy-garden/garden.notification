@@ -21,9 +21,9 @@ def sys_resolution():
         }
     elif platform == 'linux':
         o = check_output('xrandr')
-        start = o.find('current') + 7
-        end = o.find(', maximum')
-        res = [int(n) for n in o[start:end].split('x')]
+        start = o.find(b'current') + 7
+        end = o.find(b', maximum')
+        res = [int(n) for n in o[start:end].split(b'x')]
         RESOLUTION = {
             'x': res[0],
             'y': res[1]
